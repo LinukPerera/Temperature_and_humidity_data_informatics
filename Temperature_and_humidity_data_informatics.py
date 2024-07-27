@@ -68,8 +68,8 @@ def create_graphs(store_data, store_name):
     store_data['Temperature(°C)'] = pd.to_numeric(store_data['Temperature(°C)'], errors='coerce')
     store_data['Humidity(%)'] = pd.to_numeric(store_data['Humidity(%)'], errors='coerce')
 
-    st.write("Debug: Temperature data type -", store_data['Temperature(°C)'].dtype)
-    st.write("Debug: Humidity data type -", store_data['Humidity(%)'].dtype)
+    #st.write("Debug: Temperature data type -", store_data['Temperature(°C)'].dtype)
+    #st.write("Debug: Humidity data type -", store_data['Humidity(%)'].dtype)
     
     fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}')
     fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
