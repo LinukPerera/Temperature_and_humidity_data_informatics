@@ -89,3 +89,54 @@ with right_column:
 if st.button('Refresh Data'):
     fetch_data.clear()
     st.experimental_rerun()
+
+
+
+
+# Debugging thresholds
+st.write("Temperature thresholds: Low - 18°C, High - 25°C")
+st.write("Humidity thresholds: Low - 55%, High - 75%")
+
+def create_graphs(store_data, store_name):
+    if store_data.empty:
+        st.warning(f"No data available for {store_name}.")
+        return
+    
+    fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}')
+    fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
+    fig_temp.add_hline(y=25, line_dash="dash", line_color="red", annotation_text="High Threshold (25°C)")
+    st.plotly_chart(fig_temp, use_container_width=True)
+
+    fig_hum = px.line(store_data, x='Time', y='Humidity(%)', title=f'Humidity Over Time - {store_name}')
+    fig_hum.add_hline(y=55, line_dash="dash", line_color="blue", annotation_text="Low Threshold (55%)")
+    fig_hum.add_hline(y=75, line_dash="dash", line_color="blue", annotation_text="High Threshold (75%)")
+    st.plotly_chart(fig_hum, use_container_width=True)
+
+# Add similar debugging statements for live data display
+def display_live_data(latest_data):
+    if latest_data is None or latest_data.empty:
+        st.warning("No data available.")
+        return
+    
+    temperature = pd.to_numeric(latest_data['Temperature(°C)'].values[0], errors='coerce')
+    humidity = pd.to_numeric(latest_data['Humidity(%)'].values[0], errors='coerce')
+    
+    st.write(f"Debug: Current Temperature: {temperature}")
+    st.write(f"Debug: Current Humidity: {humidity}")
+    
+    if pd.isna(temperature) or pd.isna(humidity):
+        st.error("Error: Invalid data encountered.")
+        return
+    
+    st.metric(label="Temperature (°C)", value=f"{temperature:.2f}")
+    st.metric(label="Humidity (%)", value=f"{humidity:.2f}")
+    
+    if temperature > 25 or temperature < 18:
+        st.warning(f"Temperature is out of range! Current Temperature: {temperature:.2f}°C")
+    elif abs(temperature - 25) < 2 or abs(temperature - 18) < 2:
+        st.warning(f"Temperature is near threshold! Current Temperature: {temperature:.2f}°C")
+    
+    if humidity > 75 or humidity < 55:
+        st.warning(f"Humidity is out of range! Current Humidity: {humidity:.2f}%")
+    elif abs(humidity - 75) < 5 or abs(humidity - 55) < 5:
+        st.warning(f"Humidity is near threshold! Current Humidity: {humidity:.2f}%")
