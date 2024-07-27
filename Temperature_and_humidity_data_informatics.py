@@ -38,6 +38,9 @@ def display_live_data(latest_data):
     temperature = pd.to_numeric(latest_data['Temperature(°C)'].values[0], errors='coerce')
     humidity = pd.to_numeric(latest_data['Humidity(%)'].values[0], errors='coerce')
     
+    st.write(f"Debug: Current Temperature: {temperature}")
+    st.write(f"Debug: Current Humidity: {humidity}")
+    
     if pd.isna(temperature) or pd.isna(humidity):
         st.error("Error: Invalid data encountered.")
         return
@@ -60,6 +63,13 @@ def create_graphs(store_data, store_name):
     if store_data.empty:
         st.warning(f"No data available for {store_name}.")
         return
+
+    # Ensure the columns are numeric
+    store_data['Temperature(°C)'] = pd.to_numeric(store_data['Temperature(°C)'], errors='coerce')
+    store_data['Humidity(%)'] = pd.to_numeric(store_data['Humidity(%)'], errors='coerce')
+
+    st.write("Debug: Temperature data type -", store_data['Temperature(°C)'].dtype)
+    st.write("Debug: Humidity data type -", store_data['Humidity(%)'].dtype)
     
     fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}')
     fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
@@ -89,6 +99,3 @@ with right_column:
 if st.button('Refresh Data'):
     fetch_data.clear()
     st.experimental_rerun()
-
-
-
