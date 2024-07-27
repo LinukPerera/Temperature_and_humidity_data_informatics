@@ -62,7 +62,7 @@ def create_graphs(store_data, store_name):
         return
     
     fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}')
-    fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
+    fig_temp.add_hline(y=28, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
     fig_temp.add_hline(y=25, line_dash="dash", line_color="red", annotation_text="High Threshold (25°C)")
     st.plotly_chart(fig_temp, use_container_width=True)
 
