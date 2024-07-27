@@ -26,4 +26,4 @@ Werkzeug==3.0.3
 wrapt==1.16.0
 zipp==3.19.2
 plotly==5.15.0
-pandas==2.0.3
+pandas==1.5.3
