@@ -38,8 +38,8 @@ def display_live_data(latest_data):
     temperature = pd.to_numeric(latest_data['Temperature(°C)'].values[0], errors='coerce')
     humidity = pd.to_numeric(latest_data['Humidity(%)'].values[0], errors='coerce')
     
-    st.write(f"Debug: Current Temperature: {temperature}")
-    st.write(f"Debug: Current Humidity: {humidity}")
+    #st.write(f"Debug: Current Temperature: {temperature}")
+    #st.write(f"Debug: Current Humidity: {humidity}")
     
     if pd.isna(temperature) or pd.isna(humidity):
         st.error("Error: Invalid data encountered.")
