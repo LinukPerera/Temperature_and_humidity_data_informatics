@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Webpage Design</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <div class="main">
+        <div class="navbar">
+            <div class="icon">
+                <h2 class="logo">SriLankan Airlines</h2>
+                <!--<img src="logo.jpg" alt="Logo for SriLankan Airlines"> -->
+            </div>
+
+            <div class="menu">
+                <ul>
+                    <li data-tab-target><a href="#HOME">HOME</a></li>
+                    <li data-tab-target><a id="monitor-link" href="https://temperatureandhumiditydatainformatics-9owattapp2kuyof2ywbtpxh.streamlit.app/">MONITOR</a></li>
+                    <li data-tab-target><a id="data-link" href="#DATA">DATA</a></li>
+                    <li><a href="#">SERVICE</a></li>
+                    <li><a href="#">CONTACT</a></li>
+                </ul>
+            </div>
+
+            <div class="search">
+                <input class="srch" type="search" name="" placeholder="Type To text">
+                <a href="#"> <button class="btn">Search</button></a>
+            </div>
+        </div> 
+        <div class="content">
+            <h1><van>Temperature &</van><br><span>Humidity Automation</span> <br><can>SriLankan Airlines Stores</can></h1>
+            <p class="par">Bespoke Temperature and Humidity sensing and reporting application made <br> for SriLankan Airlines Stores.
+                This project is based on wireless <br> technology. Aimed to meet regulatory requirement,
+            <br> and improve storage conditions.</p>
+
+                <button class="cn"><a id="monitor-button" href="https://temperatureandhumiditydatainformatics-9owattapp2kuyof2ywbtpxh.streamlit.app/">MONITOR</a></button>
+
+                <div class="form">
+                    <h2>Login Here</h2>
+                    <input type="id" name="id" placeholder="Enter Staff ID Here">
+                    <input type="password" name="" placeholder="Enter Password Here">
+                    <button class="btnn"><a href="#">Login</a></button>
+
+                    <p class="link">Don't have an account<br>
+                    <a href="#">Sign up </a> here</a></p>
+                    <p class="liw">Find SriLankan Airlines</p>
+
+                    <div class="icons">
+                        <a href="https://web.facebook.com/flysrilankan/?_rdc=1&_rdr"><ion-icon name="logo-facebook"></ion-icon></a>
+                        <a href="https://www.instagram.com/srilankanairlinesofficial/?hl=en"><ion-icon name="logo-instagram"></ion-icon></a>
+                        <a href="https://x.com/flysrilankan?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor"><ion-icon name="logo-twitter"></ion-icon></a>
+                        <a href="https://www.srilankan.com/en_uk/go?gad_source=1&gclid=EAIaIQobChMIy5D26_OEhwMVo6RmAh0hPgPcEAAYASAAEgIbHPD_BwE"><ion-icon name="logo-google"></ion-icon></a>
+                        <a href="https://www.srilankan.com/en_uk/flying-with-us/contact-us"><ion-icon name="logo-skype"></ion-icon></a>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/ionicons@5.4.0/dist/ionicons.js"></script>
+    
+    <script>
+        document.getElementById('data-link').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent the default anchor behavior
+            window.open('data-page.html', '_blank'); // Open the new page in a new tab
+        });
+
+        document.getElementById('monitor-link').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent the default anchor behavior
+            window.open('https://temperatureandhumiditydatainformatics-9owattapp2kuyof2ywbtpxh.streamlit.app/', '_blank'); // Open the new page in a new tab
+        });
+
+        document.getElementById('monitor-button').addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent the default anchor behavior
+            window.open('https://temperatureandhumiditydatainformatics-9owattapp2kuyof2ywbtpxh.streamlit.app/', '_blank'); // Open the new page in a new tab
+        });
+    </script>
+
+</body>
+</html>
