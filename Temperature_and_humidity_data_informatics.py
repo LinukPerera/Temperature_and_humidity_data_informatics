@@ -140,3 +140,19 @@ def display_live_data(latest_data):
         st.warning(f"Humidity is out of range! Current Humidity: {humidity:.2f}%")
     elif abs(humidity - 75) < 5 or abs(humidity - 55) < 5:
         st.warning(f"Humidity is near threshold! Current Humidity: {humidity:.2f}%")
+
+
+
+with left_column:
+    st.write("Store 1")
+    store1_latest = get_latest_data(data, 'Store 1')
+    display_live_data(store1_latest)
+    store1_data = data[data['Store'] == 'Store 1']
+    create_graphs(store1_data, 'Store 1')
+
+with right_column:
+    st.write("Store 2")
+    store2_latest = get_latest_data(data, 'Store 2')
+    display_live_data(store2_latest)
+    store2_data = data[data['Store'] == 'Store 2']
+    create_graphs(store2_data, 'Store 2')
