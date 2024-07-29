@@ -16,6 +16,9 @@ function doGet(e) {
 
     var rowDataLog = [];
 
+//Columns (X axis) 
+
+
     var Data_for_I3;
     var Data_for_J3;
     var Data_for_K3;
@@ -24,13 +27,15 @@ function doGet(e) {
     var Data_for_N3;
     var Data_for_O3;
 
+//DHT22 Data Logger Section + Latest DHT22 Sensor Data
+
     var Curr_Date = Utilities.formatDate(new Date(), "Asia/Kolkata", 'dd/MM/yyyy');
-    rowDataLog[0] = Curr_Date;  // Date will be written in column A (in the "DHT11 Sensor Data Logger" section).
-    Data_for_I3 = Curr_Date;  // Date will be written in column I3 (in the "Latest DHT11 Sensor Data" section).
+    rowDataLog[0] = Curr_Date;  // Date will be written in column A (in the "DHT22 Sensor Data Logger" section).
+    Data_for_I3 = Curr_Date;  // Date will be written in column I3 (in the "Latest DHT22 Sensor Data" section).
 
     var Curr_Time = Utilities.formatDate(new Date(), "Asia/Kolkata", 'HH:mm:ss');
-    rowDataLog[1] = Curr_Time;  // Time will be written in column B (in the "DHT11 Sensor Data Logger" section).
-    Data_for_J3 = Curr_Time;  // Time will be written in column J3 (in the "Latest DHT11 Sensor Data" section).
+    rowDataLog[1] = Curr_Time;  // Time will be written in column B (in the "DHT22 Sensor Data Logger" section).
+    Data_for_J3 = Curr_Time;  // Time will be written in column J3 (in the "Latest DHT22 Sensor Data" section).
 
     var sts_val = '';
 
@@ -44,32 +49,32 @@ function doGet(e) {
           break;
 
         case 'srs':
-          rowDataLog[2] = value;  // Sensor Reading Status will be written in column C (in the "DHT11 Sensor Data Logger" section).
-          Data_for_K3 = value;  // Sensor Reading Status will be written in column K3 (in the "Latest DHT11 Sensor Data" section).
+          rowDataLog[2] = value;  // Sensor Reading Status will be written in column C (in the "DHT22 Sensor Data Logger" section).
+          Data_for_K3 = value;  // Sensor Reading Status will be written in column K3 (in the "Latest DHT22 Sensor Data" section).
           result += ', Sensor Reading Status Written on column C';
           break;
 
         case 'temp':
-          rowDataLog[3] = value;  // The temperature value will be written in column D (in the "DHT11 Sensor Data Logger" section).
-          Data_for_L3 = value;  // The temperature value will be written in column L3 (in the "Latest DHT11 Sensor Data" section).
+          rowDataLog[3] = value;  // The temperature value will be written in column D (in the "DHT22 Sensor Data Logger" section).
+          Data_for_L3 = value;  // The temperature value will be written in column L3 (in the "Latest DHT22 Sensor Data" section).
           result += ', Temperature Written on column D';
           break;
 
         case 'humd':
-          rowDataLog[4] = value; // The humidity value will be written in column E (in the "DHT11 Sensor Data Logger" section).
-          Data_for_M3 = value;  // The humidity value will be written in column M3 (in the "Latest DHT11 Sensor Data" section).
+          rowDataLog[4] = value; // The humidity value will be written in column E (in the "DHT22 Sensor Data Logger" section).
+          Data_for_M3 = value;  // The humidity value will be written in column M3 (in the "Latest DHT22 Sensor Data" section).
           result += ', Humidity Written on column E';
           break;
 
         case 'swtc1':
-          rowDataLog[5] = value;  // The state of Switch_1 will be written in column F (in the "DHT11 Sensor Data Logger" section).
-          Data_for_N3 = value;  // The state of Switch_1 will be written in column N3 (in the "Latest DHT11 Sensor Data" section).
+          rowDataLog[5] = value;  // The state of Switch_1 will be written in column F (in the "DHT22 Sensor Data Logger" section).
+          Data_for_N3 = value;  // The state of Switch_1 will be written in column N3 (in the "Latest DHT22 Sensor Data" section).
           result += ', Switch_1 Written on column F';
           break;
 
         case 'swtc2':
-          rowDataLog[6] = value;  // The state of Switch_2 will be written in column G (in the "DHT11 Sensor Data Logger" section).
-          Data_for_O3 = value;  // The state of Switch_2 will be written in column O3 (in the "Latest DHT11 Sensor Data" section).
+          rowDataLog[6] = value;  // The state of Switch_2 will be written in column G (in the "DHT22 Sensor Data Logger" section).
+          Data_for_O3 = value;  // The state of Switch_2 will be written in column O3 (in the "Latest DHT22 Sensor Data" section).
           result += ', Switch_2 Written on column G';
           break;  
 
@@ -80,12 +85,12 @@ function doGet(e) {
     
     // Conditions for writing data received from ESP32 to Google Sheets.
     if (sts_val == 'write') {
-      // Writes data to the "DHT11 Sensor Data Logger" section.
+      // Writes data to the "DHT22 Sensor Data Logger" section.
       Logger.log(JSON.stringify(rowDataLog));
       var newRangeDataLog = sheet_target.getRange(newRow, 1, 1, rowDataLog.length);
       newRangeDataLog.setValues([rowDataLog]);
       
-      // Write the data to the "Latest DHT11 Sensor Data" section.
+      // Writes the data to the "Latest DHT11 Sensor Data" section.
       var RangeDataLatest = sheet_target.getRange('I3:O3');
       RangeDataLatest.setValues([[Data_for_I3, Data_for_J3, Data_for_K3, Data_for_L3, Data_for_M3, Data_for_N3, Data_for_O3]]);
 
@@ -94,7 +99,7 @@ function doGet(e) {
     
     // Conditions for sending data to ESP32 when ESP32 reads data from Google Sheets.
     if (sts_val == 'read') {
-      // Use the line of code below if you want ESP32 to read data from columns I3 to O3 (Date,Time,Sensor Reading Status,Temperature,Humidity,Switch 1, Switch 2).
+      // Line of code below is for ESP32 to read data from columns I3 to O3 (Date,Time,Sensor Reading Status,Temperature,Humidity,Switch 1, Switch 2). (Currently off)
       // var all_Data = sheet_target.getRange('I3:O3').getDisplayValues();
       
       // Use the line of code below if you want ESP32 to read data from columns K3 to O3 (Sensor Reading Status,Temperature,Humidity,Switch 1, Switch 2).
