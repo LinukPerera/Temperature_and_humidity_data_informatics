@@ -1,0 +1,188 @@
+#include "WiFi.h"
+#include <HTTPClient.h>
+#include "DHT.h"
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+// Defining LED PINs on the ESP32 Board.
+#define On_Board_LED_PIN  2
+
+// Defines the DHT22 PIN and DHT sensor type.
+#define DHTPIN  5
+#define DHTTYPE DHT22
+
+// OLED display parameters
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+// WiFi credentials
+const char* ssid = "SIJ";  //--> Your wifi name
+const char* password = "yenuk1234"; //--> Your wifi password
+const char* Room_No = "Store 1";
+
+// Google Sheets script URL
+String Web_App_URL = "https://script.google.com/macros/s/AKfycbyB4HMbIVOidgWYHE0Wo1qe3x7-KamI6EMPdX8U_6skZoLohYrui-kEfwXMvzSwWvsXYQ/exec";
+
+String Status_Read_Sensor = "";
+float Temp;
+int Humd;
+
+// Initialize DHT as dht22
+DHT dht22(DHTPIN, DHTTYPE);
+
+// Subroutine for getting temperature and humidity data from the DHT22 sensor
+void Getting_DHT22_Sensor_Data() {
+  Humd = dht22.readHumidity();
+  Temp = dht22.readTemperature();
+
+  if (isnan(Humd) || isnan(Temp)) {
+    Serial.println();
+    Serial.println(F("Failed to read from DHT sensor!"));
+    Serial.println();
+
+    Status_Read_Sensor = "Failed";
+    Temp = 0.00;
+    Humd = 0;
+  } else {
+    Status_Read_Sensor = "Success";
+  }
+
+  Serial.println();
+  Serial.println("-------------");
+  Serial.print(F("Status_Read_Sensor : "));
+  Serial.print(Status_Read_Sensor);
+  Serial.print(F(" | Humidity : "));
+  Serial.print(Humd);
+  Serial.print(F("% | Temperature : "));
+  Serial.print(Temp);
+  Serial.println(F("°C"));
+  Serial.println("-------------");
+}
+
+// Setup function
+void setup() {
+  Serial.begin(115200);
+  Serial.println();
+  delay(1000);
+
+  pinMode(On_Board_LED_PIN, OUTPUT);
+
+  Serial.println();
+  Serial.println("-------------");
+  Serial.println("WIFI mode : STA");
+  WiFi.mode(WIFI_STA);
+  Serial.println("-------------");
+  
+
+  Serial.println();
+  Serial.println("------------");
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+
+  int connecting_process_timed_out = 20; //--> 20 = 20 seconds.
+  connecting_process_timed_out = connecting_process_timed_out * 2;
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    digitalWrite(On_Board_LED_PIN, HIGH);
+    delay(250);
+    digitalWrite(On_Board_LED_PIN, LOW);
+    delay(250);
+    if (connecting_process_timed_out > 0) connecting_process_timed_out--;
+    if (connecting_process_timed_out == 0) {
+      delay(1000);
+      ESP.restart();
+    }
+  }
+
+  digitalWrite(On_Board_LED_PIN, LOW);
+
+  Serial.println();
+  Serial.println("WiFi connected");
+  Serial.println("------------");
+
+  delay(100);
+
+  Serial.println();
+  Serial.println("DHT22 Begin");
+  Serial.println();
+  delay(1000);
+
+  dht22.begin();
+  delay(2000);
+
+  // Initialize OLED display with I2C address 0x3C
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for (;;); // Don't proceed, loop forever
+  }
+  display.display();
+  delay(2000); // Pause for 2 seconds
+  display.clearDisplay();
+  display.display();
+}
+
+// Loop function
+void loop() {
+  // Getting DHT22 sensor data
+  Getting_DHT22_Sensor_Data();
+
+  // Update OLED display
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(0, 0);
+  display.print(F("Temp: "));
+  display.print(Temp);
+  display.println(F(" °C"));
+  display.setCursor(0, 20);
+  display.print(F("Hum: "));
+  display.print(Humd);
+  display.println(F("%"));
+  display.display();
+
+  // Send data to Google Sheets if WiFi is connected
+  if (WiFi.status() == WL_CONNECTED) {
+    digitalWrite(On_Board_LED_PIN, HIGH);
+
+    // Create a URL for sending data to Google Sheets
+    String Send_Data_URL = Web_App_URL + "?sts=write";
+    Send_Data_URL += "&srs=" + Status_Read_Sensor;
+    Send_Data_URL += "&temp=" + String(Temp, 2);  // Ensure 2 decimal points
+    Send_Data_URL += "&humd=" + String(Humd);
+    Send_Data_URL += "&swtc1=" + String(Room_No);
+    Send_Data_URL += "&swtc2=";
+
+    // Replace spaces with %20 for URL encoding
+    Send_Data_URL.replace(" ", "%20");
+
+    // Print the URL to check its correctness
+    Serial.println();
+    Serial.println("-------------");
+    Serial.println("Send data to Google Spreadsheet...");
+    Serial.print("URL : ");
+    Serial.println(Send_Data_URL);
+
+    // Send data to Google Sheets
+    HTTPClient http;
+    http.begin(Send_Data_URL);
+    http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+    int httpCode = http.GET();
+    Serial.print("HTTP Status Code : ");
+    Serial.println(httpCode);
+
+    if (httpCode > 0) {
+      String payload = http.getString();
+      Serial.println("Payload : " + payload);
+    }
+
+    http.end();
+
+    digitalWrite(On_Board_LED_PIN, LOW);
+    Serial.println("-------------");
+  }
+
+  delay(10000);
+}
