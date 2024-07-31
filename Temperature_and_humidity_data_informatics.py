@@ -3,6 +3,20 @@ import pandas as pd
 import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
 
+
+import numpy as np
+import pandas as pd
+import plotly
+
+# Print version information for debugging
+st.write("NumPy version:", np.__version__)
+st.write("Pandas version:", pd.__version__)
+st.write("Streamlit version:", st.__version__)
+st.write("Plotly version:", plotly.__version__)
+
+# Rest of your code
+
+
 # Function to fetch data with caching
 @st.cache_data(ttl=600)  # Cache for 10 minutes
 def fetch_data(connection_name, url):
