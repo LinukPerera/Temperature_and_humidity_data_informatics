@@ -80,6 +80,9 @@ def create_graphs(store_data, store_name):
 # Clean and sort the data before displaying
 data = clean_and_sort_data(data)
 
+st.title("Temperature and Humidity Monitering for Sri Lankan Airlines Engineering Stores")
+
+
 st.subheader("Stores")
 left_column, right_column = st.columns(2)
 
