@@ -17,7 +17,9 @@ connection_name = "my_gsheets_connection"
 
 # Fetch data
 data = fetch_data(connection_name, url)
-st.dataframe(data)
+
+# Convert 'Time' column to datetime
+data['Time'] = pd.to_datetime(data['Time'])
 
 st.subheader("Stores")
 left_column, right_column = st.columns(2)
@@ -105,8 +107,18 @@ with right_column:
 
 # Search and download functionality
 st.subheader("Search and Download Data")
-search_query = st.text_input("Enter search query (e.g., Store 1)")
-filtered_data = data[data.apply(lambda row: search_query.lower() in row.astype(str).str.lower().to_list(), axis=1)]
+
+# Multiselect for stores
+stores = data['Store'].unique().tolist()
+selected_stores = st.multiselect("Select store(s)", stores, default=stores)
+
+# Date range input for time range
+min_date = data['Time'].min().date()
+max_date = data['Time'].max().date()
+start_date, end_date = st.date_input("Select date range", [min_date, max_date], min_value=min_date, max_value=max_date)
+
+# Filter data based on selected stores and time range
+filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Time'].dt.date >= start_date) & (data['Time'].dt.date <= end_date)]
 st.dataframe(filtered_data)
 
 if st.button('Download Searched Data as CSV'):
