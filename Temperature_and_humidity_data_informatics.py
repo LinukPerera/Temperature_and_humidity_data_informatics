@@ -9,12 +9,11 @@ import pandas as pd
 import plotly
 
 # Print version information for debugging
-st.write("NumPy version:", np.__version__)
-st.write("Pandas version:", pd.__version__)
-st.write("Streamlit version:", st.__version__)
-st.write("Plotly version:", plotly.__version__)
+#st.write("NumPy version:", np.__version__)
+#st.write("Pandas version:", pd.__version__)
+#st.write("Streamlit version:", st.__version__)
+s#t.write("Plotly version:", plotly.__version__)
 
-# Rest of your code
 
 
 # Function to fetch data with caching
@@ -109,7 +108,21 @@ with right_column:
     store2_data = data[data['Store'] == 'Store 2']
     create_graphs(store2_data, 'Store 2')
 
+with left_column:
+    st.write("Store 3")
+    store1_latest = get_latest_data(data, 'Store 3')
+    display_live_data(store1_latest)
+    store1_data = data[data['Store'] == 'Store 3']
+    create_graphs(store1_data, 'Store 3')
+
+with right_column:
+    st.write("Store 4")
+    store2_latest = get_latest_data(data, 'Store 4')
+    display_live_data(store2_latest)
+    store2_data = data[data['Store'] == 'Store 4']
+    create_graphs(store2_data, 'Store 4')
+
 # Button to clear cache and refresh data
 if st.button('Refresh Data'):
     fetch_data.clear()
-    st.experimental_rerun()
+    st.rerun()
