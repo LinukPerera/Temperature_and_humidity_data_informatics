@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
-import io
 
 # Function to fetch data with caching
 @st.cache_data(ttl=600)  # Cache for 10 minutes
@@ -24,10 +23,15 @@ data['Time'] = pd.to_datetime(data['Time'], errors='coerce')
 # Drop rows where 'Time' conversion failed
 data = data.dropna(subset=['Time'])
 
-st.subheader("Stores")
-left_column, right_column = st.columns(2)
+# Clean and sort data
+def clean_and_sort_data(data):
+    data['Temperature(°C)'] = pd.to_numeric(data['Temperature(°C)'], errors='coerce')
+    data['Humidity(%)'] = pd.to_numeric(data['Humidity(%)'], errors='coerce')
+    data = data.dropna(subset=['Temperature(°C)', 'Humidity(%)'])
+    data = data.sort_values(by='Time')
+    return data
 
-# Function to get the latest data for a store by finding the largest row number
+# Function to get the latest data for a store
 def get_latest_data(data, store):
     store_data = data[data['Store'] == store]
     if store_data.empty:
@@ -41,12 +45,8 @@ def display_live_data(latest_data):
         st.warning("No data available.")
         return
     
-    temperature = pd.to_numeric(latest_data['Temperature(°C)'].values[0], errors='coerce')
-    humidity = pd.to_numeric(latest_data['Humidity(%)'].values[0], errors='coerce')
-    
-    if pd.isna(temperature) or pd.isna(humidity):
-        st.error("Error: Invalid data encountered.")
-        return
+    temperature = latest_data['Temperature(°C)'].values[0]
+    humidity = latest_data['Humidity(%)'].values[0]
     
     st.metric(label="Temperature (°C)", value=f"{temperature:.2f}")
     st.metric(label="Humidity (%)", value=f"{humidity:.2f}")
@@ -66,9 +66,6 @@ def create_graphs(store_data, store_name):
     if store_data.empty:
         st.warning(f"No data available for {store_name}.")
         return
-
-    store_data['Temperature(°C)'] = pd.to_numeric(store_data['Temperature(°C)'], errors='coerce')
-    store_data['Humidity(%)'] = pd.to_numeric(store_data['Humidity(%)'], errors='coerce')
     
     fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}')
     fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
@@ -79,6 +76,12 @@ def create_graphs(store_data, store_name):
     fig_hum.add_hline(y=55, line_dash="dash", line_color="blue", annotation_text="Low Threshold (55%)")
     fig_hum.add_hline(y=75, line_dash="dash", line_color="blue", annotation_text="High Threshold (75%)")
     st.plotly_chart(fig_hum, use_container_width=True)
+
+# Clean and sort the data before displaying
+data = clean_and_sort_data(data)
+
+st.subheader("Stores")
+left_column, right_column = st.columns(2)
 
 with left_column:
     st.write("Store 1")
@@ -96,17 +99,17 @@ with right_column:
 
 with left_column:
     st.write("Store 3")
-    store1_latest = get_latest_data(data, 'Store 3')
-    display_live_data(store1_latest)
-    store1_data = data[data['Store'] == 'Store 3']
-    create_graphs(store1_data, 'Store 3')
+    store3_latest = get_latest_data(data, 'Store 3')
+    display_live_data(store3_latest)
+    store3_data = data[data['Store'] == 'Store 3']
+    create_graphs(store3_data, 'Store 3')
 
 with right_column:
     st.write("Store 4")
-    store2_latest = get_latest_data(data, 'Store 4')
-    display_live_data(store2_latest)
-    store2_data = data[data['Store'] == 'Store 4']
-    create_graphs(store2_data, 'Store 4')
+    store4_latest = get_latest_data(data, 'Store 4')
+    display_live_data(store4_latest)
+    store4_data = data[data['Store'] == 'Store 4']
+    create_graphs(store4_data, 'Store 4')
 
 # Search and download functionality
 st.subheader("Search and Download Data")
