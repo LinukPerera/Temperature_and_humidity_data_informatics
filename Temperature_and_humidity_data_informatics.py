@@ -83,32 +83,32 @@ data = clean_and_sort_data(data)
 st.title("Temperature and Humidity Monitering for Sri Lankan Airlines Engineering Stores")
 
 
-st.subheader("Stores")
+#st.subheader("Stores")
 left_column, right_column = st.columns(2)
 
 with left_column:
-    st.write("Store 1")
+    st.subheader("Store 1")
     store1_latest = get_latest_data(data, 'Store 1')
     display_live_data(store1_latest)
     store1_data = data[data['Store'] == 'Store 1']
     create_graphs(store1_data, 'Store 1')
 
 with right_column:
-    st.write("Store 2")
+    st.subheader("Store 2")
     store2_latest = get_latest_data(data, 'Store 2')
     display_live_data(store2_latest)
     store2_data = data[data['Store'] == 'Store 2']
     create_graphs(store2_data, 'Store 2')
 
 with left_column:
-    st.write("Store 3")
+    st.subheader("Store 3")
     store3_latest = get_latest_data(data, 'Store 3')
     display_live_data(store3_latest)
     store3_data = data[data['Store'] == 'Store 3']
     create_graphs(store3_data, 'Store 3')
 
 with right_column:
-    st.write("Store 4")
+    st.subheader("Store 4")
     store4_latest = get_latest_data(data, 'Store 4')
     display_live_data(store4_latest)
     store4_data = data[data['Store'] == 'Store 4']
