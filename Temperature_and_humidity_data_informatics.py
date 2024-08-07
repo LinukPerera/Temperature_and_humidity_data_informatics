@@ -18,8 +18,11 @@ connection_name = "my_gsheets_connection"
 # Fetch data
 data = fetch_data(connection_name, url)
 
-# Convert 'Time' column to datetime
-data['Time'] = pd.to_datetime(data['Time'])
+# Convert 'Time' column to datetime with error handling
+data['Time'] = pd.to_datetime(data['Time'], errors='coerce')
+
+# Drop rows where 'Time' conversion failed
+data = data.dropna(subset=['Time'])
 
 st.subheader("Stores")
 left_column, right_column = st.columns(2)
@@ -96,14 +99,14 @@ with left_column:
     store1_latest = get_latest_data(data, 'Store 3')
     display_live_data(store1_latest)
     store1_data = data[data['Store'] == 'Store 3']
-    create_graphs(store1_data, 'Store 3')
+    create_graphs(store3_data, 'Store 3')
 
 with right_column:
     st.write("Store 4")
     store2_latest = get_latest_data(data, 'Store 4')
     display_live_data(store2_latest)
     store2_data = data[data['Store'] == 'Store 4']
-    create_graphs(store2_data, 'Store 4')
+    create_graphs(store4_data, 'Store 4')
 
 # Search and download functionality
 st.subheader("Search and Download Data")
