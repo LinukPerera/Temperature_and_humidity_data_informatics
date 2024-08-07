@@ -2,19 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
-
-
-import numpy as np
-import pandas as pd
-import plotly
-
-# Print version information for debugging
-#st.write("NumPy version:", np.__version__)
-#st.write("Pandas version:", pd.__version__)
-#st.write("Streamlit version:", st.__version__)
-s#t.write("Plotly version:", plotly.__version__)
-
-
+import io
 
 # Function to fetch data with caching
 @st.cache_data(ttl=600)  # Cache for 10 minutes
@@ -51,9 +39,6 @@ def display_live_data(latest_data):
     temperature = pd.to_numeric(latest_data['Temperature(°C)'].values[0], errors='coerce')
     humidity = pd.to_numeric(latest_data['Humidity(%)'].values[0], errors='coerce')
     
-    #st.write(f"Debug: Current Temperature: {temperature}")
-    #st.write(f"Debug: Current Humidity: {humidity}")
-    
     if pd.isna(temperature) or pd.isna(humidity):
         st.error("Error: Invalid data encountered.")
         return
@@ -77,12 +62,8 @@ def create_graphs(store_data, store_name):
         st.warning(f"No data available for {store_name}.")
         return
 
-    # Ensure the columns are numeric
     store_data['Temperature(°C)'] = pd.to_numeric(store_data['Temperature(°C)'], errors='coerce')
     store_data['Humidity(%)'] = pd.to_numeric(store_data['Humidity(%)'], errors='coerce')
-
-    #st.write("Debug: Temperature data type -", store_data['Temperature(°C)'].dtype)
-    #st.write("Debug: Humidity data type -", store_data['Humidity(%)'].dtype)
     
     fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}')
     fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
@@ -121,6 +102,16 @@ with right_column:
     display_live_data(store2_latest)
     store2_data = data[data['Store'] == 'Store 4']
     create_graphs(store2_data, 'Store 4')
+
+# Search and download functionality
+st.subheader("Search and Download Data")
+search_query = st.text_input("Enter search query (e.g., Store 1)")
+filtered_data = data[data.apply(lambda row: search_query.lower() in row.astype(str).str.lower().to_list(), axis=1)]
+st.dataframe(filtered_data)
+
+if st.button('Download Searched Data as CSV'):
+    csv = filtered_data.to_csv(index=False)
+    st.download_button(label="Download CSV", data=csv, file_name='searched_data.csv', mime='text/csv')
 
 # Button to clear cache and refresh data
 if st.button('Refresh Data'):
