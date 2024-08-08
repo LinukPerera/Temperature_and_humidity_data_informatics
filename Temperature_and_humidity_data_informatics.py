@@ -61,12 +61,14 @@ def create_graphs(store_data, store_name):
     store_data['Temperature(°C)'] = pd.to_numeric(store_data['Temperature(°C)'], errors='coerce')
     store_data['Humidity(%)'] = pd.to_numeric(store_data['Humidity(%)'], errors='coerce')
     
-    fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}')
+    fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}', labels={'Temperature(°C)': 'Temperature (°C)'})
+    fig_temp.update_traces(mode='lines+markers')
     fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
     fig_temp.add_hline(y=25, line_dash="dash", line_color="red", annotation_text="High Threshold (25°C)")
     st.plotly_chart(fig_temp, use_container_width=True)
 
-    fig_hum = px.line(store_data, x='Time', y='Humidity(%)', title=f'Humidity Over Time - {store_name}')
+    fig_hum = px.line(store_data, x='Time', y='Humidity(%)', title=f'Humidity Over Time - {store_name}', labels={'Humidity(%)': 'Humidity (%)'})
+    fig_hum.update_traces(mode='lines+markers')
     fig_hum.add_hline(y=55, line_dash="dash", line_color="blue", annotation_text="Low Threshold (55%)")
     fig_hum.add_hline(y=75, line_dash="dash", line_color="blue", annotation_text="High Threshold (75%)")
     st.plotly_chart(fig_hum, use_container_width=True)
@@ -122,7 +124,7 @@ def main():
     st.dataframe(filtered_data)
 
     if st.button('Download Searched Data as CSV'):
-        csv = filtered_data.to_csv(index=False)
+        csv = filtered_data.to_csv(index=False).encode('utf-8')
         st.download_button(label="Download CSV", data=csv, file_name='searched_data.csv', mime='text/csv')
 
     # Button to clear cache and refresh data
