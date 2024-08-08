@@ -127,7 +127,7 @@ max_date = data['Date'].max().date()
 start_date, end_date = st.date_input("Select date range", [min_date, max_date], min_value=min_date, max_value=max_date)
 
 # Filter data based on selected stores and time range
-filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Time'].dt.date >= start_date) & (data['Time'].dt.date <= end_date)]
+filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Date'].dt.date >= start_date) & (data['Date'].dt.date <= end_date)]
 st.dataframe(filtered_data)
 
 if st.button('Download Searched Data as CSV'):
