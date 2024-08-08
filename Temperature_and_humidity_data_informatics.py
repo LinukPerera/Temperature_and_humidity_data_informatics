@@ -3,7 +3,8 @@ import pandas as pd
 import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
 
-# Function to fetch data without caching to ensure fresh data every time
+# Function to fetch data with caching
+@st.cache_data(ttl=600)  # Cache for 10 minutes
 def fetch_data(connection_name, url):
     conn = st.connection(connection_name, type=GSheetsConnection)
     data = conn.read(spreadsheet=url)
@@ -15,22 +16,9 @@ connection_name = "my_gsheets_connection"
 
 # Fetch data
 data = fetch_data(connection_name, url)
+st.dataframe(data)
 
-# Convert 'Time' column to datetime with error handling
-data['Time'] = pd.to_datetime(data['Time'], errors='coerce')
-
-# Drop rows where 'Time' conversion failed
-data = data.dropna(subset=['Time'])
-
-# Clean and sort data
-def clean_and_sort_data(data):
-    data['Temperature(°C)'] = pd.to_numeric(data['Temperature(°C)'], errors='coerce')
-    data['Humidity(%)'] = pd.to_numeric(data['Humidity(%)'], errors='coerce')
-    data = data.dropna(subset=['Temperature(°C)', 'Humidity(%)'])
-    data = data.sort_values(by='Time')
-    return data
-
-# Function to get the latest data for a store
+# Function to get the latest data for a store by finding the largest row number
 def get_latest_data(data, store):
     store_data = data[data['Store'] == store]
     if store_data.empty:
@@ -44,8 +32,12 @@ def display_live_data(latest_data):
         st.warning("No data available.")
         return
     
-    temperature = latest_data['Temperature(°C)'].values[0]
-    humidity = latest_data['Humidity(%)'].values[0]
+    temperature = pd.to_numeric(latest_data['Temperature(°C)'].values[0], errors='coerce')
+    humidity = pd.to_numeric(latest_data['Humidity(%)'].values[0], errors='coerce')
+    
+    if pd.isna(temperature) or pd.isna(humidity):
+        st.error("Error: Invalid data encountered.")
+        return
     
     st.metric(label="Temperature (°C)", value=f"{temperature:.2f}")
     st.metric(label="Humidity (%)", value=f"{humidity:.2f}")
@@ -65,6 +57,9 @@ def create_graphs(store_data, store_name):
     if store_data.empty:
         st.warning(f"No data available for {store_name}.")
         return
+
+    store_data['Temperature(°C)'] = pd.to_numeric(store_data['Temperature(°C)'], errors='coerce')
+    store_data['Humidity(%)'] = pd.to_numeric(store_data['Humidity(%)'], errors='coerce')
     
     fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}')
     fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
@@ -76,62 +71,64 @@ def create_graphs(store_data, store_name):
     fig_hum.add_hline(y=75, line_dash="dash", line_color="blue", annotation_text="High Threshold (75%)")
     st.plotly_chart(fig_hum, use_container_width=True)
 
-# Clean and sort the data before displaying
-data = clean_and_sort_data(data)
+# Main display function
+def main():
+    st.title("Temperature and Humidity Monitoring for Sri Lankan Airlines Engineering Stores")
 
-st.title("Temperature and Humidity Monitoring for Sri Lankan Airlines Engineering Stores")
+    left_column, right_column = st.columns(2)
 
-# Display data for each store
-left_column, right_column = st.columns(2)
+    with left_column:
+        st.subheader("Store 1")
+        store1_latest = get_latest_data(data, 'Store 1')
+        display_live_data(store1_latest)
+        store1_data = data[data['Store'] == 'Store 1']
+        create_graphs(store1_data, 'Store 1')
 
-with left_column:
-    st.subheader("Store 1")
-    store1_latest = get_latest_data(data, 'Store 1')
-    display_live_data(store1_latest)
-    store1_data = data[data['Store'] == 'Store 1']
-    create_graphs(store1_data, 'Store 1')
+    with right_column:
+        st.subheader("Store 2")
+        store2_latest = get_latest_data(data, 'Store 2')
+        display_live_data(store2_latest)
+        store2_data = data[data['Store'] == 'Store 2']
+        create_graphs(store2_data, 'Store 2')
 
-with right_column:
-    st.subheader("Store 2")
-    store2_latest = get_latest_data(data, 'Store 2')
-    display_live_data(store2_latest)
-    store2_data = data[data['Store'] == 'Store 2']
-    create_graphs(store2_data, 'Store 2')
+    with left_column:
+        st.subheader("Store 3")
+        store3_latest = get_latest_data(data, 'Store 3')
+        display_live_data(store3_latest)
+        store3_data = data[data['Store'] == 'Store 3']
+        create_graphs(store3_data, 'Store 3')
 
-with left_column:
-    st.subheader("Store 3")
-    store3_latest = get_latest_data(data, 'Store 3')
-    display_live_data(store3_latest)
-    store3_data = data[data['Store'] == 'Store 3']
-    create_graphs(store3_data, 'Store 3')
+    with right_column:
+        st.subheader("Store 4")
+        store4_latest = get_latest_data(data, 'Store 4')
+        display_live_data(store4_latest)
+        store4_data = data[data['Store'] == 'Store 4']
+        create_graphs(store4_data, 'Store 4')
 
-with right_column:
-    st.subheader("Store 4")
-    store4_latest = get_latest_data(data, 'Store 4')
-    display_live_data(store4_latest)
-    store4_data = data[data['Store'] == 'Store 4']
-    create_graphs(store4_data, 'Store 4')
+    # Search and download functionality
+    st.subheader("Search and Download Data")
 
-# Search and download functionality
-st.subheader("Search and Download Data")
+    # Multiselect for stores
+    stores = data['Store'].unique().tolist()
+    selected_stores = st.multiselect("Select store(s)", stores, default=stores)
 
-# Multiselect for stores
-stores = data['Store'].unique().tolist()
-selected_stores = st.multiselect("Select store(s)", stores, default=stores)
+    # Date range input for time range
+    min_date = data['Time'].min().date()
+    max_date = data['Time'].max().date()
+    start_date, end_date = st.date_input("Select date range", [min_date, max_date], min_value=min_date, max_value=max_date)
 
-# Date range input for time range
-min_date = data['Time'].min().date()
-max_date = data['Time'].max().date()
-start_date, end_date = st.date_input("Select date range", [min_date, max_date], min_value=min_date, max_value=max_date)
+    # Filter data based on selected stores and time range
+    filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Time'].dt.date >= start_date) & (data['Time'].dt.date <= end_date)]
+    st.dataframe(filtered_data)
 
-# Filter data based on selected stores and time range
-filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Time'].dt.date >= start_date) & (data['Time'].dt.date <= end_date)]
-st.dataframe(filtered_data)
+    if st.button('Download Searched Data as CSV'):
+        csv = filtered_data.to_csv(index=False)
+        st.download_button(label="Download CSV", data=csv, file_name='searched_data.csv', mime='text/csv')
 
-if st.button('Download Searched Data as CSV'):
-    csv = filtered_data.to_csv(index=False)
-    st.download_button(label="Download CSV", data=csv, file_name='searched_data.csv', mime='text/csv')
+    # Button to clear cache and refresh data
+    if st.button('Refresh Data'):
+        fetch_data.clear()
+        st.experimental_rerun()
 
-# Button to clear cache and refresh data
-if st.button('Refresh Data'):
-    st.experimental_rerun()
+if __name__ == "__main__":
+    main()
