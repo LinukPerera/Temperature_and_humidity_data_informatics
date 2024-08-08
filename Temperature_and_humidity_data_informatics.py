@@ -3,8 +3,7 @@ import pandas as pd
 import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
 
-# Function to fetch data with caching
-@st.cache_data(ttl=600)  # Cache for 10 minutes
+# Function to fetch data without caching
 def fetch_data(connection_name, url):
     conn = st.connection(connection_name, type=GSheetsConnection)
     data = conn.read(spreadsheet=url)
@@ -80,10 +79,9 @@ def create_graphs(store_data, store_name):
 # Clean and sort the data before displaying
 data = clean_and_sort_data(data)
 
-st.title("Temperature and Humidity Monitering for Sri Lankan Airlines Engineering Stores")
+st.title("Temperature and Humidity Monitoring for Sri Lankan Airlines Engineering Stores")
 
-
-#st.subheader("Stores")
+# Display data for each store
 left_column, right_column = st.columns(2)
 
 with left_column:
@@ -122,12 +120,14 @@ stores = data['Store'].unique().tolist()
 selected_stores = st.multiselect("Select store(s)", stores, default=stores)
 
 # Date range input for time range
-min_date = data['Date'].min().date()
-max_date = data['Date'].max().date()
+min_date = data['Time'].min().date()
+max_date = data['Time'].max().date()
 start_date, end_date = st.date_input("Select date range", [min_date, max_date], min_value=min_date, max_value=max_date)
 
 # Filter data based on selected stores and time range
-filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Date'].dt.date >= start_date) & (data['Date'].dt.date <= end_date)]
+filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Time'].dt.date >= start_date) & (data['Time'].dt.date <= end_date)]
+filtered_data['Time'] = filtered_data['Time'].dt.strftime('%Y-%m-%d %H:%M:%S')  # Format the Time column
+
 st.dataframe(filtered_data)
 
 if st.button('Download Searched Data as CSV'):
@@ -137,6 +137,4 @@ if st.button('Download Searched Data as CSV'):
 # Button to clear cache and refresh data
 if st.button('Refresh Data'):
     fetch_data.clear()
-    st.cache_data.clear()
-    st.cache_resource.clear()
-    st.rerun()
+    st.experimental_rerun()
