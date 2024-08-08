@@ -22,9 +22,6 @@ data['Time'] = pd.to_datetime(data['Time'], errors='coerce')
 # Drop rows where 'Time' conversion failed
 data = data.dropna(subset=['Time'])
 
-# Extract date from 'Time' and create a 'Date' column
-data['Date'] = data['Time'].dt.date
-
 # Clean and sort data
 def clean_and_sort_data(data):
     data['Temperature(°C)'] = pd.to_numeric(data['Temperature(°C)'], errors='coerce')
@@ -123,8 +120,8 @@ stores = data['Store'].unique().tolist()
 selected_stores = st.multiselect("Select store(s)", stores, default=stores)
 
 # Date range input for time range
-min_date = data['Time'].min().date()
-max_date = data['Time'].max().date()
+min_date = data['Date'].min()
+max_date = data['Date'].max()
 start_date, end_date = st.date_input("Select date range", [min_date, max_date], min_value=min_date, max_value=max_date)
 
 # Filter data based on selected stores and time range
