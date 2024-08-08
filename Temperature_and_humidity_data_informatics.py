@@ -137,4 +137,6 @@ if st.button('Download Searched Data as CSV'):
 # Button to clear cache and refresh data
 if st.button('Refresh Data'):
     fetch_data.clear()
+    st.cache_data.clear()
+    st.cache_resource.clear()
     st.rerun()
