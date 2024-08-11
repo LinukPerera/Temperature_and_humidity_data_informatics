@@ -10,6 +10,13 @@ def fetch_data(connection_name, url):
     data = conn.read(spreadsheet=url)
     return data
 
+# Google Spreadsheet URL and connection name
+url = "https://docs.google.com/spreadsheets/d/1Z4GDst-_he_Et8iUt2LNTbB9VWKCXmB4cblRfk4UdZE/edit?gid=0#gid=0"
+connection_name = "my_gsheets_connection"
+
+# Fetch data
+data = fetch_data(connection_name, url)
+
 # Function to reorder date format from YYYY/DD/MM to YYYY/MM/DD
 def correct_date_format(date_str):
     if isinstance(date_str, str):  # Check if the date_str is a string
@@ -18,19 +25,10 @@ def correct_date_format(date_str):
             return f"{parts[0]}/{parts[2]}/{parts[1]}"
     return date_str  # Return the original value if it's not a string
 
-# After fetching the data
+# Apply the correct_date_format function to the 'Date' column
 data['Date'] = data['Date'].apply(correct_date_format)
-data['Date'] = pd.to_datetime(data['Date'], format='%Y/%m/%d', errors='coerce').dt.date
 
-# Google Spreadsheet URL and connection name
-url = "https://docs.google.com/spreadsheets/d/1Z4GDst-_he_Et8iUt2LNTbB9VWKCXmB4cblRfk4UdZE/edit?gid=0#gid=0"
-connection_name = "my_gsheets_connection"
-
-# Fetch data
-data = fetch_data(connection_name, url)
-
-# Correct the date format before converting 'Date' to datetime
-data['Date'] = data['Date'].apply(correct_date_format)
+# Convert 'Date' column to datetime and extract only the date part
 data['Date'] = pd.to_datetime(data['Date'], format='%Y/%m/%d', errors='coerce').dt.date
 
 # Remove rows where 'Date' is missing or invalid
