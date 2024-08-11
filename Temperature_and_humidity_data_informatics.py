@@ -137,4 +137,3 @@ if st.button('Download Searched Data as CSV'):
 if st.button('Refresh Data'):
     fetch_data.clear()
     st.experimental_rerun()
-
