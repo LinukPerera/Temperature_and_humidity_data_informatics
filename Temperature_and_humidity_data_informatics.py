@@ -17,8 +17,8 @@ connection_name = "my_gsheets_connection"
 # Fetch data
 data = fetch_data(connection_name, url)
 
-# Convert 'Time' column to datetime
-data['Time'] = pd.to_datetime(data['Time'], errors='coerce')
+# Convert 'Date' column to datetime
+data['Date'] = pd.to_datetime(data['Date'], errors='coerce')
 
 # Convert 'Temperature(°C)' and 'Humidity(%)' to numeric
 data['Temperature(°C)'] = pd.to_numeric(data['Temperature(°C)'], errors='coerce')
@@ -68,13 +68,13 @@ def create_graphs(store_data, store_name):
         st.warning(f"No data available for {store_name}.")
         return
 
-    fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}', labels={'Temperature(°C)': 'Temperature (°C)'})
+    fig_temp = px.line(store_data, x='Date', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}', labels={'Temperature(°C)': 'Temperature (°C)'})
     fig_temp.update_traces(mode='lines+markers')
     fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
     fig_temp.add_hline(y=25, line_dash="dash", line_color="red", annotation_text="High Threshold (25°C)")
     st.plotly_chart(fig_temp, use_container_width=True)
 
-    fig_hum = px.line(store_data, x='Time', y='Humidity(%)', title=f'Humidity Over Time - {store_name}', labels={'Humidity(%)': 'Humidity (%)'})
+    fig_hum = px.line(store_data, x='Date', y='Humidity(%)', title=f'Humidity Over Time - {store_name}', labels={'Humidity(%)': 'Humidity (%)'})
     fig_hum.update_traces(mode='lines+markers')
     fig_hum.add_hline(y=55, line_dash="dash", line_color="blue", annotation_text="Low Threshold (55%)")
     fig_hum.add_hline(y=75, line_dash="dash", line_color="blue", annotation_text="High Threshold (75%)")
@@ -115,13 +115,13 @@ st.subheader("Search and Download Data")
 stores = data['Store'].unique().tolist()
 selected_stores = st.multiselect("Select store(s)", stores, default=stores)
 
-# Date range input for time range
-min_date = data['Time'].min().date()
-max_date = data['Time'].max().date()
+# Date range input for date range
+min_date = data['Date'].min().date()
+max_date = data['Date'].max().date()
 start_date, end_date = st.date_input("Select date range", [min_date, max_date], min_value=min_date, max_value=max_date)
 
-# Filter data based on selected stores and time range
-filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Time'].dt.date >= start_date) & (data['Time'].dt.date <= end_date)]
+# Filter data based on selected stores and date range
+filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Date'].dt.date >= start_date) & (data['Date'].dt.date <= end_date)]
 st.dataframe(filtered_data)
 
 if st.button('Download Searched Data as CSV'):
