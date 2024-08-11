@@ -17,8 +17,9 @@ connection_name = "my_gsheets_connection"
 # Fetch data
 data = fetch_data(connection_name, url)
 
-# Convert 'Date' column to datetime and extract only the date part
-data['Date'] = pd.to_datetime(data['Date'], errors='coerce').dt.date
+# Convert 'Date' column to datetime with the correct format
+# Assuming your dates are in 'DD-MM-YYYY' format, change it according to your data
+data['Date'] = pd.to_datetime(data['Date'], format='%d-%m-%Y', errors='coerce').dt.date
 
 # Remove rows where 'Date' is missing or invalid
 data = data.dropna(subset=['Date'])
