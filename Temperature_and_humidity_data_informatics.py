@@ -17,6 +17,10 @@ connection_name = "my_gsheets_connection"
 # Fetch data
 data = fetch_data(connection_name, url)
 
+# Display the first few rows to check the initial data
+st.write("Initial Data Preview:")
+st.write(data.head())
+
 # Ensure date conversion is consistent
 def parse_date(date_str):
     try:
@@ -27,8 +31,16 @@ def parse_date(date_str):
 # Apply the parsing function to the Date column
 data['Date'] = data['Date'].apply(parse_date)
 
+# Display after date parsing
+st.write("Data after Date Parsing:")
+st.write(data.head())
+
 # Remove rows where 'Date' is missing or invalid (NaT)
 data = data.dropna(subset=['Date'])
+
+# Display after removing NaT rows
+st.write("Data after Dropping NaT Dates:")
+st.write(data.head())
 
 # Convert 'Temperature(°C)' and 'Humidity(%)' to numeric
 data['Temperature(°C)'] = pd.to_numeric(data['Temperature(°C)'], errors='coerce')
