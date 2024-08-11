@@ -20,6 +20,9 @@ data = fetch_data(connection_name, url)
 # Convert 'Date' column to datetime and extract only the date part
 data['Date'] = pd.to_datetime(data['Date'], errors='coerce').dt.date
 
+# Remove rows where 'Date' is missing or invalid
+data = data.dropna(subset=['Date'])
+
 # Convert 'Temperature(°C)' and 'Humidity(%)' to numeric
 data['Temperature(°C)'] = pd.to_numeric(data['Temperature(°C)'], errors='coerce')
 data['Humidity(%)'] = pd.to_numeric(data['Humidity(%)'], errors='coerce')
@@ -115,9 +118,11 @@ st.subheader("Search and Download Data")
 stores = data['Store'].unique().tolist()
 selected_stores = st.multiselect("Select store(s)", stores, default=stores)
 
-# Date range input for date range
+# Ensure min_date and max_date are valid datetime.date objects
 min_date = data['Date'].min()
 max_date = data['Date'].max()
+
+# Date range input for date range
 start_date, end_date = st.date_input("Select date range", [min_date, max_date], min_value=min_date, max_value=max_date)
 
 # Filter data based on selected stores and date range
