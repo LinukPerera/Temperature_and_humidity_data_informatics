@@ -18,7 +18,7 @@ connection_name = "my_gsheets_connection"
 data = fetch_data(connection_name, url)
 
 # Convert 'Date' column to datetime with the correct format
-# Assuming your dates are in 'DD-MM-YYYY' format, change it according to your data
+# Assuming your dates are in 'DD-MM-YYYY' format, adjust this format if needed
 data['Date'] = pd.to_datetime(data['Date'], format='%d-%m-%Y', errors='coerce').dt.date
 
 # Remove rows where 'Date' is missing or invalid
@@ -128,11 +128,16 @@ start_date, end_date = st.date_input("Select date range", [min_date, max_date], 
 
 # Filter data based on selected stores and date range
 filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Date'] >= start_date) & (data['Date'] <= end_date)]
-st.dataframe(filtered_data)
 
-if st.button('Download Searched Data as CSV'):
-    csv = filtered_data.to_csv(index=False).encode('utf-8')
-    st.download_button(label="Download CSV", data=csv, file_name='searched_data.csv', mime='text/csv')
+# Check if filtered data is empty
+if filtered_data.empty:
+    st.warning("No data available for the selected date range and stores.")
+else:
+    st.dataframe(filtered_data)
+
+    if st.button('Download Searched Data as CSV'):
+        csv = filtered_data.to_csv(index=False).encode('utf-8')
+        st.download_button(label="Download CSV", data=csv, file_name='searched_data.csv', mime='text/csv')
 
 # Button to clear cache and refresh data
 if st.button('Refresh Data'):
