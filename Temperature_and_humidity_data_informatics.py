@@ -17,11 +17,17 @@ connection_name = "my_gsheets_connection"
 # Fetch data
 data = fetch_data(connection_name, url)
 
-# Convert 'Date' column to datetime with the correct format
-# Assuming your dates are in 'DD-MM-YYYY' format, adjust this format if needed
-data['Date'] = pd.to_datetime(data['Date'], format='%d-%m-%Y', errors='coerce').dt.date
+# Ensure date conversion is consistent
+def parse_date(date_str):
+    try:
+        return pd.to_datetime(date_str, format='%d-%m-%Y', errors='coerce').date()
+    except:
+        return pd.NaT
 
-# Remove rows where 'Date' is missing or invalid
+# Apply the parsing function to the Date column
+data['Date'] = data['Date'].apply(parse_date)
+
+# Remove rows where 'Date' is missing or invalid (NaT)
 data = data.dropna(subset=['Date'])
 
 # Convert 'Temperature(°C)' and 'Humidity(%)' to numeric
