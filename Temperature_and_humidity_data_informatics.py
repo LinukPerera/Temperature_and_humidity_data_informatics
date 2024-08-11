@@ -17,8 +17,8 @@ connection_name = "my_gsheets_connection"
 # Fetch data
 data = fetch_data(connection_name, url)
 
-# Convert 'Date' column to string and parse it using the correct format
-data['Date'] = pd.to_datetime(data['Date'].astype(str), format='%Y/%m/%d', errors='coerce').dt.date
+# Convert 'Date' column to datetime and extract only the date part
+data['Date'] = pd.to_datetime(data['Date'], errors='coerce').dt.date
 
 # Remove rows where 'Date' is missing or invalid
 data = data.dropna(subset=['Date'])
@@ -137,3 +137,4 @@ if st.button('Download Searched Data as CSV'):
 if st.button('Refresh Data'):
     fetch_data.clear()
     st.experimental_rerun()
+
