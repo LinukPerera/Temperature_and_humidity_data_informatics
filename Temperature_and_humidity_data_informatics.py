@@ -17,11 +17,8 @@ connection_name = "my_gsheets_connection"
 # Fetch data
 data = fetch_data(connection_name, url)
 
-# Convert 'Date' column to datetime and extract only the date part
-data['Date'] = pd.to_datetime(data['Date'], errors='coerce').dt.date
-
-# Remove rows where 'Date' is missing or invalid
-data = data.dropna(subset=['Date'])
+# Convert 'Date' column to datetime
+data['Date'] = pd.to_datetime(data['Date'], errors='coerce')
 
 # Convert 'Temperature(°C)' and 'Humidity(%)' to numeric
 data['Temperature(°C)'] = pd.to_numeric(data['Temperature(°C)'], errors='coerce')
@@ -118,15 +115,13 @@ st.subheader("Search and Download Data")
 stores = data['Store'].unique().tolist()
 selected_stores = st.multiselect("Select store(s)", stores, default=stores)
 
-# Ensure min_date and max_date are valid datetime.date objects
-min_date = data['Date'].min()
-max_date = data['Date'].max()
-
 # Date range input for date range
+min_date = data['Date'].min().date()
+max_date = data['Date'].max().date()
 start_date, end_date = st.date_input("Select date range", [min_date, max_date], min_value=min_date, max_value=max_date)
 
 # Filter data based on selected stores and date range
-filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Date'] >= start_date) & (data['Date'] <= end_date)]
+filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Date'].dt.date >= start_date) & (data['Date'].dt.date <= end_date)]
 st.dataframe(filtered_data)
 
 if st.button('Download Searched Data as CSV'):
