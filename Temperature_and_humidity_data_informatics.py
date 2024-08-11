@@ -17,30 +17,11 @@ connection_name = "my_gsheets_connection"
 # Fetch data
 data = fetch_data(connection_name, url)
 
-# Display the first few rows to check the initial data
-st.write("Initial Data Preview:")
-st.write(data.head())
+# Convert 'Date' column to datetime and extract only the date part
+data['Date'] = pd.to_datetime(data['Date'], errors='coerce').dt.date
 
-# Ensure date conversion is consistent
-def parse_date(date_str):
-    try:
-        return pd.to_datetime(date_str, format='%d-%m-%Y', errors='coerce').date()
-    except:
-        return pd.NaT
-
-# Apply the parsing function to the Date column
-data['Date'] = data['Date'].apply(parse_date)
-
-# Display after date parsing
-st.write("Data after Date Parsing:")
-st.write(data.head())
-
-# Remove rows where 'Date' is missing or invalid (NaT)
+# Remove rows where 'Date' is missing or invalid
 data = data.dropna(subset=['Date'])
-
-# Display after removing NaT rows
-st.write("Data after Dropping NaT Dates:")
-st.write(data.head())
 
 # Convert 'Temperature(°C)' and 'Humidity(%)' to numeric
 data['Temperature(°C)'] = pd.to_numeric(data['Temperature(°C)'], errors='coerce')
@@ -146,16 +127,11 @@ start_date, end_date = st.date_input("Select date range", [min_date, max_date], 
 
 # Filter data based on selected stores and date range
 filtered_data = data[(data['Store'].isin(selected_stores)) & (data['Date'] >= start_date) & (data['Date'] <= end_date)]
+st.dataframe(filtered_data)
 
-# Check if filtered data is empty
-if filtered_data.empty:
-    st.warning("No data available for the selected date range and stores.")
-else:
-    st.dataframe(filtered_data)
-
-    if st.button('Download Searched Data as CSV'):
-        csv = filtered_data.to_csv(index=False).encode('utf-8')
-        st.download_button(label="Download CSV", data=csv, file_name='searched_data.csv', mime='text/csv')
+if st.button('Download Searched Data as CSV'):
+    csv = filtered_data.to_csv(index=False).encode('utf-8')
+    st.download_button(label="Download CSV", data=csv, file_name='searched_data.csv', mime='text/csv')
 
 # Button to clear cache and refresh data
 if st.button('Refresh Data'):
