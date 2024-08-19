@@ -10,6 +10,18 @@ def fetch_data(connection_name, url):
     data = conn.read(spreadsheet=url)
     return data
 
+
+hide_st_style =  """
+                    <style>
+                    #MainMenu {visibility : hidden}
+                    footer {visibility : hidden}
+                    header {visibility : hidden}
+                    </style>
+            """
+
+st.markdown (hide_st_style, unsafe_allow_html=True)
+
+
 # Google Spreadsheet URL and connection name
 url = "https://docs.google.com/spreadsheets/d/1Z4GDst-_he_Et8iUt2LNTbB9VWKCXmB4cblRfk4UdZE/edit?gid=0#gid=0"
 connection_name = "my_gsheets_connection"
@@ -71,14 +83,12 @@ def create_graphs(store_data, store_name):
         st.warning(f"No data available for {store_name}.")
         return
 
-    fig_temp = px.line(store_data, x='Date', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}', labels={'Temperature(°C)': 'Temperature (°C)'})
-    fig_temp.update_traces(mode='lines+markers')
+    fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}', labels={'Temperature(°C)': 'Temperature (°C)'})
     fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
     fig_temp.add_hline(y=25, line_dash="dash", line_color="red", annotation_text="High Threshold (25°C)")
     st.plotly_chart(fig_temp, use_container_width=True)
 
-    fig_hum = px.line(store_data, x='Date', y='Humidity(%)', title=f'Humidity Over Time - {store_name}', labels={'Humidity(%)': 'Humidity (%)'})
-    fig_hum.update_traces(mode='lines+markers')
+    fig_hum = px.line(store_data, x='Time', y='Humidity(%)', title=f'Humidity Over Time - {store_name}', labels={'Humidity(%)': 'Humidity (%)'})
     fig_hum.add_hline(y=55, line_dash="dash", line_color="blue", annotation_text="Low Threshold (55%)")
     fig_hum.add_hline(y=75, line_dash="dash", line_color="blue", annotation_text="High Threshold (75%)")
     st.plotly_chart(fig_hum, use_container_width=True)
@@ -87,29 +97,81 @@ with left_column:
     st.subheader("Store 1")
     store1_latest = get_latest_data(data, 'Store 1')
     display_live_data(store1_latest)
-    store1_data = data[data['Store'] == 'Store 1']
-    create_graphs(store1_data, 'Store 1')
+    
+    with st.expander("Show Graphs"):
+        store1_data = data[data['Store'] == 'Store 1']
+        create_graphs(store1_data, 'Store 1')
 
 with right_column:
     st.subheader("Store 2")
     store2_latest = get_latest_data(data, 'Store 2')
     display_live_data(store2_latest)
-    store2_data = data[data['Store'] == 'Store 2']
-    create_graphs(store2_data, 'Store 2')
+    
+    with st.expander("Show Graphs"):
+        store2_data = data[data['Store'] == 'Store 2']
+        create_graphs(store2_data, 'Store 2')
+
+st.write("##")
 
 with left_column:
     st.subheader("Store 3")
     store3_latest = get_latest_data(data, 'Store 3')
     display_live_data(store3_latest)
-    store3_data = data[data['Store'] == 'Store 3']
-    create_graphs(store3_data, 'Store 3')
+    
+    with st.expander("Show Graphs"):
+        store3_data = data[data['Store'] == 'Store 3']
+        create_graphs(store3_data, 'Store 3')
 
 with right_column:
     st.subheader("Store 4")
     store4_latest = get_latest_data(data, 'Store 4')
     display_live_data(store4_latest)
-    store4_data = data[data['Store'] == 'Store 4']
-    create_graphs(store4_data, 'Store 4')
+    
+    with st.expander("Show Graphs"):
+        store4_data = data[data['Store'] == 'Store 4']
+        create_graphs(store4_data, 'Store 4')
+
+st.write("##")
+
+with left_column:
+    st.subheader("Store 5")
+    store5_latest = get_latest_data(data, 'Store 5')
+    display_live_data(store5_latest)
+    
+    with st.expander("Show Graphs"):
+        store5_data = data[data['Store'] == 'Store 5']
+        create_graphs(store5_data, 'Store 5')
+
+with right_column:
+    st.subheader("Store 6")
+    store6_latest = get_latest_data(data, 'Store 6')
+    display_live_data(store6_latest)
+    
+    with st.expander("Show Graphs"):
+        store6_data = data[data['Store'] == 'Store 6']
+        create_graphs(store6_data, 'Store 6')
+st.write("##")
+
+
+
+with left_column:
+    st.subheader("Store 7")
+    store5_latest = get_latest_data(data, 'Store 7')
+    display_live_data(store5_latest)
+    
+    with st.expander("Show Graphs"):
+        store5_data = data[data['Store'] == 'Store 7']
+        create_graphs(store5_data, 'Store 7')
+
+with right_column:
+    st.subheader("Store 8")
+    store6_latest = get_latest_data(data, 'Store 8')
+    display_live_data(store6_latest)
+    
+    with st.expander("Show Graphs"):
+        store6_data = data[data['Store'] == 'Store 8']
+        create_graphs(store6_data, 'Store 8')
+
 
 # Search and download functionality
 st.subheader("Search and Download Data")
@@ -133,7 +195,19 @@ if st.button('Download Searched Data as CSV'):
     csv = filtered_data.to_csv(index=False).encode('utf-8')
     st.download_button(label="Download CSV", data=csv, file_name='searched_data.csv', mime='text/csv')
 
-# Button to clear cache and refresh data
+
+def reload_page():
+    js = "window.location.reload();"
+    st.write(f'<script>{js}</script>', unsafe_allow_html=True)
+
+# Example button to trigger the reload
+#if st.button('Reload Page'):
+    
+    
+    # Button to clear cache and refresh data
 if st.button('Refresh Data'):
     fetch_data.clear()
-    st.experimental_rerun()
+    st.cache_data.clear()
+    st.cache_resource.clear()
+    reload_page()
+    st.rerun()
