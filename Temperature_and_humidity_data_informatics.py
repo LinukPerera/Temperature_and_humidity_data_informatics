@@ -23,7 +23,8 @@ st.markdown (hide_st_style, unsafe_allow_html=True)
 
 
 # Google Spreadsheet URL and connection name
-url = sensor_data
+#url = st.secrets["sensor_data"]
+url = "https://docs.google.com/spreadsheets/d/1Z4GDst-_he_Et8iUt2LNTbB9VWKCXmB4cblRfk4UdZE/edit?gid=0#gid=0"
 connection_name = "my_gsheets_connection"
 
 # Fetch data
