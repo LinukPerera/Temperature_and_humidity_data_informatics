@@ -89,21 +89,7 @@ def display_live_data(latest_data):
     elif abs(humidity - 75) < 5 or abs(humidity - 55) < 5:
         st.warning(f"Humidity is near threshold! Current Humidity: {humidity:.2f}%")
 
-# Function to create temperature and humidity graphs with thresholds
-def create_graphs(store_data, store_name):
-    if store_data.empty:
-        st.warning(f"No data available for {store_name}.")
-        return
 
-    fig_temp = px.line(store_data, x='Time', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}', labels={'Temperature(°C)': 'Temperature (°C)'})
-    fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
-    fig_temp.add_hline(y=25, line_dash="dash", line_color="red", annotation_text="High Threshold (25°C)")
-    st.plotly_chart(fig_temp, use_container_width=True)
-
-    fig_hum = px.line(store_data, x='Time', y='Humidity(%)', title=f'Humidity Over Time - {store_name}', labels={'Humidity(%)': 'Humidity (%)'})
-    fig_hum.add_hline(y=55, line_dash="dash", line_color="blue", annotation_text="Low Threshold (55%)")
-    fig_hum.add_hline(y=75, line_dash="dash", line_color="blue", annotation_text="High Threshold (75%)")
-    st.plotly_chart(fig_hum, use_container_width=True)
 
 
 def create_graphs(store_data, store_name):
