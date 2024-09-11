@@ -1,7 +1,12 @@
+#python3 -m streamlit run tst.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
+from datetime import datetime, timedelta
+
+
+
 
 # Function to fetch data with caching
 @st.cache_data(ttl=600)  # Cache for 10 minutes
@@ -32,6 +37,12 @@ data = fetch_data(connection_name, url)
 
 # Convert 'Date' column to datetime and extract only the date part
 data['Date'] = pd.to_datetime(data['Date'], errors='coerce').dt.date
+
+data['Datetime'] = pd.to_datetime(data['Date'].astype(str) + ' ' + data['Time'], errors='coerce')
+
+# Filter for the last 24 hours
+last_24_hours = data[data['Datetime'] >= (datetime.now() - timedelta(hours=24))]
+
 
 # Remove rows where 'Date' is missing or invalid
 data = data.dropna(subset=['Date'])
@@ -94,14 +105,45 @@ def create_graphs(store_data, store_name):
     fig_hum.add_hline(y=75, line_dash="dash", line_color="blue", annotation_text="High Threshold (75%)")
     st.plotly_chart(fig_hum, use_container_width=True)
 
+
+def create_graphs(store_data, store_name):
+    if store_data.empty:
+        st.warning(f"No data available for {store_name}.")
+        return
+    
+    # Filter the store data for the last 24 hours
+    store_last_24_hours = store_data[store_data['Datetime'] >= (datetime.now() - timedelta(hours=24))]
+    
+    if store_last_24_hours.empty:
+        st.warning(f"No data available for the last 24 hours for {store_name}.")
+        return
+    
+    # Plot temperature
+    fig_temp = px.line(store_last_24_hours, x='Datetime', y='Temperature(°C)', title=f'Temperature Over Time - {store_name}', labels={'Temperature(°C)': 'Temperature (°C)'})
+    fig_temp.add_hline(y=18, line_dash="dash", line_color="red", annotation_text="Low Threshold (18°C)")
+    fig_temp.add_hline(y=25, line_dash="dash", line_color="red", annotation_text="High Threshold (25°C)")
+    st.plotly_chart(fig_temp, use_container_width=True)
+
+    # Plot humidity
+    fig_hum = px.line(store_last_24_hours, x='Datetime', y='Humidity(%)', title=f'Humidity Over Time - {store_name}', labels={'Humidity(%)': 'Humidity (%)'})
+    fig_hum.add_hline(y=55, line_dash="dash", line_color="blue", annotation_text="Low Threshold (55%)")
+    fig_hum.add_hline(y=75, line_dash="dash", line_color="blue", annotation_text="High Threshold (75%)")
+    st.plotly_chart(fig_hum, use_container_width=True)
+
+
+
+
 with left_column:
     st.subheader("Store 1")
     store1_latest = get_latest_data(data, 'Store 1')
     display_live_data(store1_latest)
     
     with st.expander("Show Graphs"):
-        store1_data = data[data['Store'] == 'Store 1']
-        create_graphs(store1_data, 'Store 1')
+        store2_data = data[data['Store'] == 'Store 1']
+        create_graphs(store2_data, 'Store 1')
+    
+
+
 
 with right_column:
     st.subheader("Store 2")
